@@ -9,10 +9,12 @@ import (
 )
 
 type User struct {
-	Username string
+	Username           string
+	DaysBeforeBirthday int
 }
 
-const JsonTemplate = `{"message": "Hello {{.Username}}! Your birthday is in N days"}`
+const JsonTemplate = `{"message": "Hello {{.Username}}! Your birthday is in {{.DaysBeforeBirthday}} day(s)"}`
+const JsonTemplate2 = `{"message": "Hello {{.Username}}! Happy Birthday!"}`
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -22,14 +24,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if usernameInPath == "" {
 		fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 	} else {
-		u := User{Username: usernameInPath}
+		u := User{Username: usernameInPath, DaysBeforeBirthday: 1}
 
 		tmpl := template.New("User Template")
+		var errTmplParse error
 
-		tmpl, errTmplParse := tmpl.Parse(JsonTemplate)
-		if errTmplParse != nil {
-			log.Fatal("Parse: ", errTmplParse)
-			return
+		if u.DaysBeforeBirthday == 0 {
+			tmpl, errTmplParse = tmpl.Parse(JsonTemplate2)
+			if errTmplParse != nil {
+				log.Fatal("Parse: ", errTmplParse)
+				return
+			}
+		} else {
+			tmpl, errTmplParse = tmpl.Parse(JsonTemplate)
+			if errTmplParse != nil {
+				log.Fatal("Parse: ", errTmplParse)
+				return
+			}
 		}
 
 		errTmplExectute := tmpl.Execute(w, u)
