@@ -88,15 +88,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			glog.Info("unmarshalled user: ", &user)
 
-			output, err := json.Marshal(user)
-			if err != nil {
-				http.Error(w, err.Error(), 500)
-				return
-			}
-
-			glog.Info("marshalled output: ", output)
-
-			errInsertDB := data.InsertDB(&u)
+			errInsertDB := data.InsertDB(&user)
 			if errInsertDB != nil {
 				glog.Error(errInsertDB)
 				http.Error(w, errInsertDB.Error(), 500)

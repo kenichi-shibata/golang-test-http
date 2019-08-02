@@ -1,0 +1,2 @@
+ curl -X PUT localhost:8080/hello/world -d '{"username":"kafka", "birthdate": "2019-01-02"}' -vvv
+ curl -X GET localhost:8080/hello/world
