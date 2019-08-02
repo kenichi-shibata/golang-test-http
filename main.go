@@ -15,7 +15,7 @@ import (
 const JsonTemplate = `{"message": "Hello {{.Username}}! Your birthday is in {{.DaysBeforeBirthday}} day(s)"}`
 const JsonTemplate2 = `{"message": "Hello {{.Username}}! Happy Birthday!"}`
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	usernameInPath := strings.Replace(r.URL.Path, "/username/", "", -1)
@@ -24,7 +24,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		glog.Warning("Please input username")
 		fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 	} else {
-		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-07-01"}
+		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-08-02"}
 
 		errInsertDB := data.InsertDB(&u)
 		if errInsertDB != nil {
@@ -36,7 +36,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.New("User Template")
 		var errTmplParse error
 
-		if u.DaysBeforeBirthday == 0 {
+		if uCalc.DaysBeforeBirthday == 0 {
 			tmpl, errTmplParse = tmpl.Parse(JsonTemplate2)
 			if errTmplParse != nil {
 				glog.Fatal("Parse: ", errTmplParse)
@@ -69,6 +69,6 @@ func main() {
 		glog.Fatal(errSetupDB)
 	}
 
-	http.HandleFunc("/username/", handler)
+	http.HandleFunc("/username/", Handler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }
