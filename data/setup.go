@@ -59,18 +59,19 @@ func InsertDB(user *utils.User) {
 	glog.Info(execInsertData)
 }
 
-func SelectDB(user *utils.User) {
+func SelectDB(user *utils.User) (userCalc utils.User) {
 	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
 	if errSQLOpen != nil {
 		glog.Fatal(errSQLOpen)
 		panic(errSQLOpen)
 	}
-
+	// this query needs to be changed to only return 1 or 0 entries not more than 1
 	rows, _ := database.Query("SELECT id, name, birthdate FROM users")
 
 	var id int
 	var name string
 	var birthdate string
+	var dayDiff int
 	for rows.Next() {
 		err := rows.Scan(&id, &name, &birthdate)
 		if err != nil {
@@ -85,7 +86,7 @@ func SelectDB(user *utils.User) {
 		}
 		datetimeNow := time.Now()
 		hourDiff := birthdateWithYearSetToCurrentParse.Sub(datetimeNow).Hours()
-		dayDiff := int(math.Round(hourDiff / 24))
+		dayDiff = int(math.Round(hourDiff / 24))
 		// add another year if birthday already passed this year then add one year to birthdateWithYearSetToCurrent then call it birthdateWithYearSetToNext
 		if dayDiff < 0 {
 			birthdateWithYearSetToNext := birthdateWithYearSetToCurrentParse.AddDate(1, 0, 0) // add one year
@@ -97,4 +98,6 @@ func SelectDB(user *utils.User) {
 		glog.Info("dayDiff " + strconv.Itoa(dayDiff))
 		glog.Info("Your birthday is " + strconv.Itoa(dayDiff) + " days from today!")
 	}
+	uCalc := utils.User{Username: user.Username, Birthdate: user.Birthdate, DaysBeforeBirthday: dayDiff}
+	return uCalc
 }
