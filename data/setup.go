@@ -82,12 +82,12 @@ func SelectDB(user *utils.User) (userCalc utils.User) {
 		}
 		datetimeNow := time.Now()
 		hourDiff := birthdateWithYearSetToCurrentParse.Sub(datetimeNow).Hours()
-		dayDiff = int(math.Round(hourDiff / 24))
+		dayDiff = int(math.Ceil(hourDiff / 24))
 		// add another year if birthday already passed this year then add one year to birthdateWithYearSetToCurrent then call it birthdateWithYearSetToNext
 		if dayDiff < 0 {
 			birthdateWithYearSetToNext := birthdateWithYearSetToCurrentParse.AddDate(1, 0, 0) // add one year
 			hourDiff = birthdateWithYearSetToNext.Sub(datetimeNow).Hours()
-			dayDiff = int(math.Round(hourDiff / 24))
+			dayDiff = int(math.Floor(hourDiff / 24))
 		}
 		glog.Info("birthdateWithYearSetToCurrent \t" + birthdateWithYearSetToCurrent)
 		glog.Info("dateTimeNow \t\t\t\t" + datetimeNow.Format(layoutISO))

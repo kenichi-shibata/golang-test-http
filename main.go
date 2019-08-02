@@ -15,7 +15,11 @@ import (
 const JsonTemplate = `{"message": "Hello {{.Username}}! Your birthday is in {{.DaysBeforeBirthday}} day(s)"}`
 const JsonTemplate2 = `{"message": "Hello {{.Username}}! Happy Birthday!"}`
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func MainHandler(w http.ResponseWriter, r *http.Request) {
+	if !strings.HasPrefix(r.URL.Path, "/username") {
+		http.Error(w, "404 Not Found", 404)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	usernameInPath := strings.Replace(r.URL.Path, "/username/", "", -1)
@@ -69,6 +73,6 @@ func main() {
 		glog.Fatal(errSetupDB)
 	}
 
-	http.HandleFunc("/username/", Handler)
+	http.HandleFunc("/username/", MainHandler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }
