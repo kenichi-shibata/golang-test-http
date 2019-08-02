@@ -22,8 +22,8 @@ func TestMainHandler(t *testing.T) {
 			status, http.StatusNotFound)
 	}
 
-	//  Test 2: Happy Path Happy Birthday/username/health-check
-	req2, err2 := http.NewRequest("GET", "/username/health-check", nil)
+	//  Test 2: Happy Path Happy Birthday/hello/health-check
+	req2, err2 := http.NewRequest("GET", "/hello/health-check", nil)
 	if err2 != nil {
 		t.Fatal(err2)
 	}
@@ -42,8 +42,8 @@ func TestMainHandler(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr2.Body.String(), expected2)
 	}
-	//  Test 3: No username /username/
-	req3, err3 := http.NewRequest("GET", "/username/", nil)
+	//  Test 3: No username /hello/
+	req3, err3 := http.NewRequest("GET", "/hello/", nil)
 	if err3 != nil {
 		t.Fatal(err3)
 	}
