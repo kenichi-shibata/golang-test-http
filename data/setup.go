@@ -4,7 +4,6 @@ package data
 
 import (
 	"database/sql"
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -77,7 +76,7 @@ func SelectDB(user *utils.User) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(strconv.Itoa(id) + ": " + name + " " + birthdate)
+		glog.Info("Found in DB: " + strconv.Itoa(id) + ": " + name + " " + birthdate)
 		monthDayArray := strings.Split(birthdate, "-")[1:]
 		birthdateWithYearSetToCurrent := strings.Join(append([]string{}, strconv.Itoa(time.Now().Year()), monthDayArray[0], monthDayArray[1]), "-")
 		birthdateWithYearSetToCurrentParse, errBirthdateWithYearSetToCurrentParse := time.Parse(layoutISO, birthdateWithYearSetToCurrent)
@@ -87,15 +86,15 @@ func SelectDB(user *utils.User) {
 		datetimeNow := time.Now()
 		hourDiff := birthdateWithYearSetToCurrentParse.Sub(datetimeNow).Hours()
 		dayDiff := int(math.Round(hourDiff / 24))
-		// add another if birthdayPassed then add one year to birthdateWithYearSetToCurrent then call it birthdateWithYearSetToNext
+		// add another year if birthday already passed this year then add one year to birthdateWithYearSetToCurrent then call it birthdateWithYearSetToNext
 		if dayDiff < 0 {
 			birthdateWithYearSetToNext := birthdateWithYearSetToCurrentParse.AddDate(1, 0, 0) // add one year
 			hourDiff = birthdateWithYearSetToNext.Sub(datetimeNow).Hours()
 			dayDiff = int(math.Round(hourDiff / 24))
 		}
-		fmt.Println("birthdateWithYearSetToCurrent \t" + birthdateWithYearSetToCurrent)
-		fmt.Println("dateTimeNow \t\t\t" + datetimeNow.Format(layoutISO))
-		fmt.Println("dayDiff " + strconv.Itoa(dayDiff))
-		fmt.Println("Your birthday is " + strconv.Itoa(dayDiff) + " days from today!")
+		glog.Info("birthdateWithYearSetToCurrent \t" + birthdateWithYearSetToCurrent)
+		glog.Info("dateTimeNow \t\t\t\t" + datetimeNow.Format(layoutISO))
+		glog.Info("dayDiff " + strconv.Itoa(dayDiff))
+		glog.Info("Your birthday is " + strconv.Itoa(dayDiff) + " days from today!")
 	}
 }
