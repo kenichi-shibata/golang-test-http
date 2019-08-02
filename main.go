@@ -26,7 +26,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-07-01"}
 
-		data.InsertDB(&u)
+		errInsertDB := data.InsertDB(&u)
+		if errInsertDB != nil {
+			glog.Fatal(errInsertDB)
+		}
+
 		uCalc := data.SelectDB(&u)
 
 		tmpl := template.New("User Template")
@@ -59,7 +63,12 @@ func main() {
 	flag.Set("stderrthreshold", "INFO")
 	flag.Set("v", "2")
 	flag.Parse()
-	data.SetupDB()
+
+	errSetupDB := data.SetupDB()
+	if errSetupDB != nil {
+		glog.Fatal(errSetupDB)
+	}
+
 	http.HandleFunc("/username/", handler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }

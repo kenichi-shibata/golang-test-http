@@ -1,7 +1,5 @@
 package data
 
-// package main
-
 import (
 	"database/sql"
 	"math"
@@ -16,47 +14,45 @@ import (
 
 const layoutISO = "2006-01-02"
 
-func SetupDB() {
-	// func main() {
+func SetupDB() error {
 	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
 	if errSQLOpen != nil {
-		panic(errSQLOpen)
+		return errSQLOpen
 	}
 
 	statementPrepareCreateTable, errPrepareCreateTable := database.Prepare("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, birthdate TEXT)")
 	if errPrepareCreateTable != nil {
-		panic(errPrepareCreateTable)
+		return errPrepareCreateTable
 	}
 
 	_, errExecCreateTable := statementPrepareCreateTable.Exec()
 	if errExecCreateTable != nil {
-		panic(errExecCreateTable)
+		return errExecCreateTable
 	}
 
 	glog.Info("DB Ensured")
+	return nil
 }
 
-func InsertDB(user *utils.User) {
+func InsertDB(user *utils.User) error {
 	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
 	if errSQLOpen != nil {
-		glog.Fatal(errSQLOpen)
-		panic(errSQLOpen)
+		return errSQLOpen
 	}
 
 	statementPrepareInsertData, errPrepareInsertData := database.Prepare("INSERT INTO users (name, birthdate) VALUES (?, ?)")
 	if errPrepareInsertData != nil {
-		glog.Fatal(errPrepareInsertData)
-		panic(errPrepareInsertData)
+		return errPrepareInsertData
 	}
 
 	execInsertData, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
 	if errExecInsertData != nil {
-		glog.Fatal(errExecInsertData)
-		panic(errExecInsertData)
+		return errExecInsertData
 	}
 
 	glog.Info("Insert Ensured")
 	glog.Info(execInsertData)
+	return nil
 }
 
 func SelectDB(user *utils.User) (userCalc utils.User) {
