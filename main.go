@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"text/template"
+
+	"github.com/golang/glog"
 )
 
 type User struct {
@@ -22,6 +23,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	usernameInPath := strings.Replace(r.URL.Path, "/username/", "", -1)
 
 	if usernameInPath == "" {
+		glog.Warning("Please input username")
 		fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 	} else {
 		u := User{Username: usernameInPath, DaysBeforeBirthday: 1}
@@ -32,20 +34,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		if u.DaysBeforeBirthday == 0 {
 			tmpl, errTmplParse = tmpl.Parse(JsonTemplate2)
 			if errTmplParse != nil {
-				log.Fatal("Parse: ", errTmplParse)
+				glog.Fatal("Parse: ", errTmplParse)
 				return
 			}
 		} else {
 			tmpl, errTmplParse = tmpl.Parse(JsonTemplate)
 			if errTmplParse != nil {
-				log.Fatal("Parse: ", errTmplParse)
+				glog.Fatal("Parse: ", errTmplParse)
 				return
 			}
 		}
 
 		errTmplExectute := tmpl.Execute(w, u)
 		if errTmplExectute != nil {
-			log.Fatal("Execute: ", errTmplExectute)
+			glog.Fatal("Execute: ", errTmplExectute)
 			return
 		}
 	}
@@ -53,5 +55,5 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/username/", handler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	glog.Fatal(http.ListenAndServe(":8080", nil))
 }
