@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"text/template"
@@ -33,7 +35,10 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			glog.Warning("Please input username")
 			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 		} else {
-			uCalc := data.SelectDB(&u)
+			errSelectDB, uCalc := data.SelectDB(&u)
+			if errSelectDB != nil {
+				glog.Error("Select: ", errSelectDB)
+			}
 
 			tmpl := template.New("User Template")
 			var errTmplParse error
@@ -41,20 +46,20 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			if uCalc.DaysBeforeBirthday == 0 {
 				tmpl, errTmplParse = tmpl.Parse(JsonTemplate2)
 				if errTmplParse != nil {
-					glog.Fatal("Parse: ", errTmplParse)
+					glog.Error("Parse: ", errTmplParse)
 					return
 				}
 			} else {
 				tmpl, errTmplParse = tmpl.Parse(JsonTemplate)
 				if errTmplParse != nil {
-					glog.Fatal("Parse: ", errTmplParse)
+					glog.Error("Parse: ", errTmplParse)
 					return
 				}
 			}
 
 			errTmplExecute := tmpl.Execute(w, uCalc)
 			if errTmplExecute != nil {
-				glog.Fatal("Execute: ", errTmplExecute)
+				glog.Error("Execute: ", errTmplExecute)
 				return
 			}
 		}
@@ -66,14 +71,40 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			glog.Warning("Please input username")
 			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 		} else {
+			body, errReadBody := ioutil.ReadAll(r.Body)
+			defer r.Body.Close()
+			if errReadBody != nil {
+				glog.Error(errReadBody)
+				http.Error(w, errReadBody.Error(), 500)
+				return
+			}
+
+			var user utils.User
+			errUnmarshalBody := json.Unmarshal(body, &user)
+			if errUnmarshalBody != nil {
+				glog.Error("cannot unmarshal body: ", errUnmarshalBody)
+				http.Error(w, errUnmarshalBody.Error(), 500)
+				return
+			}
+			glog.Info("unmarshalled user: ", &user)
+
+			output, err := json.Marshal(user)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+
+			glog.Info("marshalled output: ", output)
+
 			errInsertDB := data.InsertDB(&u)
 			if errInsertDB != nil {
-				glog.Fatal(errInsertDB)
+				glog.Error(errInsertDB)
+				http.Error(w, errInsertDB.Error(), 500)
 			}
 			w.WriteHeader(204)
 		}
 	default:
-		glog.Warning("Sorry, only GET and PUT methods are supported.")
+		glog.Warning("Only GET and PUT methods are supported Method Called::", r.Method)
 		http.Error(w, "405 Method Not Allowed", 405)
 		return
 	}

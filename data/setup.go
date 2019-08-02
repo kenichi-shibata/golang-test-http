@@ -54,7 +54,7 @@ func InsertDB(user *utils.User) error {
 	return nil
 }
 
-func SelectDB(user *utils.User) (userCalc utils.User) {
+func SelectDB(user *utils.User) (errSelectDB error, userCalc utils.User) {
 	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
 	if errSQLOpen != nil {
 		glog.Fatal(errSQLOpen)
@@ -94,5 +94,5 @@ func SelectDB(user *utils.User) (userCalc utils.User) {
 		glog.Info("Your birthday is " + strconv.Itoa(dayDiff) + " days from today!")
 	}
 	uCalc := utils.User{Username: user.Username, Birthdate: user.Birthdate, DaysBeforeBirthday: dayDiff}
-	return uCalc
+	return nil, uCalc
 }
