@@ -45,13 +45,12 @@ func InsertDB(user *utils.User) error {
 		return errPrepareInsertData
 	}
 
-	execInsertData, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
+	_, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
 	if errExecInsertData != nil {
 		return errExecInsertData
 	}
 
 	glog.Info("Insert Ensured")
-	glog.Info(execInsertData)
 	return nil
 }
 

@@ -30,6 +30,15 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-08-02"}
 
+		switch r.Method {
+		case "GET":
+			glog.Info("GET")
+		case "PUT":
+			glog.Info("PUT")
+		default:
+			glog.Warning("Sorry, only GET and PUT methods are supported.")
+		}
+
 		errInsertDB := data.InsertDB(&u)
 		if errInsertDB != nil {
 			glog.Fatal(errInsertDB)
