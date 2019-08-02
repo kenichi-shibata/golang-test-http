@@ -79,16 +79,17 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			var user utils.User
-			errUnmarshalBody := json.Unmarshal(body, &user)
+			var userFromBody utils.User
+			errUnmarshalBody := json.Unmarshal(body, &userFromBody)
 			if errUnmarshalBody != nil {
 				glog.Error("cannot unmarshal body: ", errUnmarshalBody)
 				http.Error(w, errUnmarshalBody.Error(), 500)
 				return
 			}
-			glog.Info("unmarshalled user: ", &user)
+			glog.Info("unmarshalled user: ", &userFromBody)
 
-			errInsertDB := data.InsertDB(&user)
+			insertUser := utils.User{Username: usernameInPath, Birthdate: userFromBody.Birthdate}
+			errInsertDB := data.InsertDB(&insertUser)
 			if errInsertDB != nil {
 				glog.Error(errInsertDB)
 				http.Error(w, errInsertDB.Error(), 500)

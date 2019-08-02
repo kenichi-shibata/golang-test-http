@@ -1,2 +1,5 @@
+ # this should fail only allow dateOfBirth on data
  curl -X PUT localhost:8080/hello/world -d '{"username":"kafka", "birthdate": "2019-01-02"}' -vvv
+ # this should pass
+ curl -X PUT localhost:8080/hello/world -d '{"dataOfBirth": "2019-01-03"}' 
  curl -X GET localhost:8080/hello/world
