@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -61,8 +62,13 @@ func SelectDB(user *utils.User) (errSelectDB error, userCalc utils.User) {
 		panic(errSQLOpen)
 	}
 	// this query needs to be changed to only return 1 or 0 entries not more than 1
-	rows, _ := database.Query("SELECT id, name, birthdate FROM users")
+	selectQuery := fmt.Sprintf("SELECT id, name, birthdate FROM users WHERE name='%v'", user.Username)
+	rows, errQuery := database.Query(selectQuery)
+	if errQuery != nil {
+		glog.Error(errQuery)
+	}
 
+	glog.Info("selectquery: ", selectQuery)
 	var id int
 	var name string
 	var birthdate string

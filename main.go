@@ -117,5 +117,3 @@ func main() {
 	http.HandleFunc("/hello/", MainHandler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }
-
-// next use PUT to write to DB
