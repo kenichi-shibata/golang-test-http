@@ -4,6 +4,11 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
+	"math"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/kenichi-shibata/golang-test-http/utils"
@@ -30,31 +35,6 @@ func SetupDB() {
 	}
 
 	glog.Info("DB Ensured")
-
-	// rows, _ := database.Query("SELECT id, name, birthdate FROM users")
-
-	// var id int
-	// var name string
-	// var birthdate string
-	// for rows.Next() {
-	// 	err := rows.Scan(&id, &name, &birthdate)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	fmt.Println(strconv.Itoa(id) + ": " + name + " " + birthdate)
-	// 	monthDayArray := strings.Split(birthdate, "-")[1:]
-	// 	birthdateWithYearSetToCurrent := strings.Join(append([]string{}, strconv.Itoa(time.Now().Year()), monthDayArray[0], monthDayArray[1]), "-")
-	// 	birthdateWithYearSetToCurrentParse, errBirthdateWithYearSetToCurrentParse := time.Parse(layoutISO, birthdateWithYearSetToCurrent)
-	// 	if errBirthdateWithYearSetToCurrentParse != nil {
-	// 		panic(errBirthdateWithYearSetToCurrentParse)
-	// 	}
-	// 	datetimeNow := time.Now()
-	// 	hourDiff := birthdateWithYearSetToCurrentParse.Sub(datetimeNow).Hours()
-	// 	dayDiff := int(math.Round(hourDiff / 24))
-	// 	// fmt.Println("Your birthday is " + days + " from today!")
-	// 	fmt.Println("birthdateWithYearSetToCurrent " + birthdateWithYearSetToCurrent)
-	// 	fmt.Println("dayDiff " + strconv.Itoa(dayDiff))
-	// }
 }
 
 func InsertDB(user *utils.User) {
@@ -70,11 +50,52 @@ func InsertDB(user *utils.User) {
 		panic(errPrepareInsertData)
 	}
 
-	_, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
+	execInsertData, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
 	if errExecInsertData != nil {
 		glog.Fatal(errExecInsertData)
 		panic(errExecInsertData)
 	}
 
 	glog.Info("Insert Ensured")
+	glog.Info(execInsertData)
+}
+
+func SelectDB(user *utils.User) {
+	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
+	if errSQLOpen != nil {
+		glog.Fatal(errSQLOpen)
+		panic(errSQLOpen)
+	}
+
+	rows, _ := database.Query("SELECT id, name, birthdate FROM users")
+
+	var id int
+	var name string
+	var birthdate string
+	for rows.Next() {
+		err := rows.Scan(&id, &name, &birthdate)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(strconv.Itoa(id) + ": " + name + " " + birthdate)
+		monthDayArray := strings.Split(birthdate, "-")[1:]
+		birthdateWithYearSetToCurrent := strings.Join(append([]string{}, strconv.Itoa(time.Now().Year()), monthDayArray[0], monthDayArray[1]), "-")
+		birthdateWithYearSetToCurrentParse, errBirthdateWithYearSetToCurrentParse := time.Parse(layoutISO, birthdateWithYearSetToCurrent)
+		if errBirthdateWithYearSetToCurrentParse != nil {
+			panic(errBirthdateWithYearSetToCurrentParse)
+		}
+		datetimeNow := time.Now()
+		hourDiff := birthdateWithYearSetToCurrentParse.Sub(datetimeNow).Hours()
+		dayDiff := int(math.Round(hourDiff / 24))
+		// add another if birthdayPassed then add one year to birthdateWithYearSetToCurrent then call it birthdateWithYearSetToNext
+		if dayDiff < 0 {
+			birthdateWithYearSetToNext := birthdateWithYearSetToCurrentParse.AddDate(1, 0, 0) // add one year
+			hourDiff = birthdateWithYearSetToNext.Sub(datetimeNow).Hours()
+			dayDiff = int(math.Round(hourDiff / 24))
+		}
+		fmt.Println("birthdateWithYearSetToCurrent \t" + birthdateWithYearSetToCurrent)
+		fmt.Println("dateTimeNow \t\t\t" + datetimeNow.Format(layoutISO))
+		fmt.Println("dayDiff " + strconv.Itoa(dayDiff))
+		fmt.Println("Your birthday is " + strconv.Itoa(dayDiff) + " days from today!")
+	}
 }

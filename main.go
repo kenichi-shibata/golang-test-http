@@ -24,7 +24,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		glog.Warning("Please input username")
 		fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 	} else {
-		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1}
+		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-08-01"}
+
+		data.InsertDB(&u)
+		data.SelectDB(&u)
 
 		tmpl := template.New("User Template")
 		var errTmplParse error
