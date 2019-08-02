@@ -27,6 +27,8 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		glog.Info("GET")
+		w.Header().Set("Content-Type", "application/json")
+
 		if usernameInPath == "" {
 			glog.Warning("Please input username")
 			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
@@ -50,8 +52,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			w.Header().Set("Content-Type", "application/json")
-
 			errTmplExecute := tmpl.Execute(w, uCalc)
 			if errTmplExecute != nil {
 				glog.Fatal("Execute: ", errTmplExecute)
@@ -59,11 +59,13 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	case "PUT":
+		glog.Info("PUT")
+		w.Header().Set("Content-Type", "application/json")
+
 		if usernameInPath == "" {
 			glog.Warning("Please input username")
 			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 		} else {
-			glog.Info("PUT")
 			errInsertDB := data.InsertDB(&u)
 			if errInsertDB != nil {
 				glog.Fatal(errInsertDB)
@@ -91,3 +93,5 @@ func main() {
 	http.HandleFunc("/hello/", MainHandler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }
+
+// next use PUT to write to DB
