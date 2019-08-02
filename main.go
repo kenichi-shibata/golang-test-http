@@ -20,54 +20,60 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "404 Not Found", 404)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 
 	usernameInPath := strings.Replace(r.URL.Path, "/hello/", "", -1)
+	u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-08-02"}
 
-	if usernameInPath == "" {
-		glog.Warning("Please input username")
-		fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
-	} else {
-		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-08-02"}
-
-		switch r.Method {
-		case "GET":
-			glog.Info("GET")
-		case "PUT":
-			glog.Info("PUT")
-		default:
-			glog.Warning("Sorry, only GET and PUT methods are supported.")
-		}
-
-		errInsertDB := data.InsertDB(&u)
-		if errInsertDB != nil {
-			glog.Fatal(errInsertDB)
-		}
-
-		uCalc := data.SelectDB(&u)
-
-		tmpl := template.New("User Template")
-		var errTmplParse error
-
-		if uCalc.DaysBeforeBirthday == 0 {
-			tmpl, errTmplParse = tmpl.Parse(JsonTemplate2)
-			if errTmplParse != nil {
-				glog.Fatal("Parse: ", errTmplParse)
-				return
-			}
+	switch r.Method {
+	case "GET":
+		glog.Info("GET")
+		if usernameInPath == "" {
+			glog.Warning("Please input username")
+			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 		} else {
-			tmpl, errTmplParse = tmpl.Parse(JsonTemplate)
-			if errTmplParse != nil {
-				glog.Fatal("Parse: ", errTmplParse)
+			uCalc := data.SelectDB(&u)
+
+			tmpl := template.New("User Template")
+			var errTmplParse error
+
+			if uCalc.DaysBeforeBirthday == 0 {
+				tmpl, errTmplParse = tmpl.Parse(JsonTemplate2)
+				if errTmplParse != nil {
+					glog.Fatal("Parse: ", errTmplParse)
+					return
+				}
+			} else {
+				tmpl, errTmplParse = tmpl.Parse(JsonTemplate)
+				if errTmplParse != nil {
+					glog.Fatal("Parse: ", errTmplParse)
+					return
+				}
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+
+			errTmplExecute := tmpl.Execute(w, uCalc)
+			if errTmplExecute != nil {
+				glog.Fatal("Execute: ", errTmplExecute)
 				return
 			}
 		}
-
-		errTmplExecute := tmpl.Execute(w, uCalc)
-		if errTmplExecute != nil {
-			glog.Fatal("Execute: ", errTmplExecute)
-			return
+	case "PUT":
+		if usernameInPath == "" {
+			glog.Warning("Please input username")
+			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
+		} else {
+			glog.Info("PUT")
+			errInsertDB := data.InsertDB(&u)
+			if errInsertDB != nil {
+				glog.Fatal(errInsertDB)
+			}
+			w.WriteHeader(204)
 		}
+	default:
+		glog.Warning("Sorry, only GET and PUT methods are supported.")
+		http.Error(w, "405 Method Not Allowed", 405)
+		return
 	}
 }
 
