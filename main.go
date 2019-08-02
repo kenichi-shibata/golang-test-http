@@ -1,18 +1,16 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"strings"
 	"text/template"
 
 	"github.com/golang/glog"
+	"github.com/kenichi-shibata/golang-test-http/data"
+	"github.com/kenichi-shibata/golang-test-http/utils"
 )
-
-type User struct {
-	Username           string
-	DaysBeforeBirthday int
-}
 
 const JsonTemplate = `{"message": "Hello {{.Username}}! Your birthday is in {{.DaysBeforeBirthday}} day(s)"}`
 const JsonTemplate2 = `{"message": "Hello {{.Username}}! Happy Birthday!"}`
@@ -26,7 +24,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		glog.Warning("Please input username")
 		fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 	} else {
-		u := User{Username: usernameInPath, DaysBeforeBirthday: 1}
+		u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1}
 
 		tmpl := template.New("User Template")
 		var errTmplParse error
@@ -45,15 +43,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		errTmplExectute := tmpl.Execute(w, u)
-		if errTmplExectute != nil {
-			glog.Fatal("Execute: ", errTmplExectute)
+		errTmplExecute := tmpl.Execute(w, u)
+		if errTmplExecute != nil {
+			glog.Fatal("Execute: ", errTmplExecute)
 			return
 		}
 	}
 }
 
 func main() {
+	flag.Set("logtostderr", "false")
+	flag.Set("stderrthreshold", "INFO")
+	flag.Set("v", "2")
+	flag.Parse()
+	data.SetupDB()
 	http.HandleFunc("/username/", handler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 
 	"github.com/golang/glog"
+	"github.com/kenichi-shibata/golang-test-http/utils"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -56,7 +57,7 @@ func SetupDB() {
 	// }
 }
 
-func InsertDB() {
+func InsertDB(user *utils.User) {
 	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
 	if errSQLOpen != nil {
 		glog.Fatal(errSQLOpen)
@@ -69,9 +70,11 @@ func InsertDB() {
 		panic(errPrepareInsertData)
 	}
 
-	_, errExecInsertData := statementPrepareInsertData.Exec("Nic", "2019-08-31")
+	_, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
 	if errExecInsertData != nil {
 		glog.Fatal(errExecInsertData)
 		panic(errExecInsertData)
 	}
+
+	glog.Info("Insert Ensured")
 }
