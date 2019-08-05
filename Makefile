@@ -6,7 +6,7 @@ run:
 
 .PHONY: build
 build:
-	docker build -t kenichi-shibata/golang-http-test:${GIT_HASH} .
+	docker build -t kenichishibata/golang-http-test:${GIT_HASH} .
 
 .PHONY: test
 test:
