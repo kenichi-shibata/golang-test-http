@@ -17,6 +17,12 @@ docker run -it -v $(pwd)/db:/data/db -p 8080:8080 kenichishibata/golang-http-tes
 ```
 If you are running on mac you might need to enable mounts on docker. https://docs.docker.com/docker-for-mac/osxfs/#namespaces
 
+Once you have the application running you can run a series of request for checking.
+
+```
+sh hack/test.curl
+```
+
 Prerequisites
 ------------
 * go version 1.12+
