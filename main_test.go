@@ -22,7 +22,7 @@ func TestMainHandler(t *testing.T) {
 			status, http.StatusNotFound)
 	}
 
-	//  Test 2: Happy Path Happy Birthday/hello/health-check
+	// Test 2: Happy Path Happy Birthday/hello/health-check
 	req2, err2 := http.NewRequest("GET", "/hello/health-check", nil)
 	if err2 != nil {
 		t.Fatal(err2)
@@ -37,7 +37,7 @@ func TestMainHandler(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	expected2 := `{"message": "Hello health-check! Happy Birthday!"}`
+	expected2 := `{"message": "Hello health-check! We didn't find your birthday on our records! Please PUT your birthdate."}`
 	if rr2.Body.String() != expected2 {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr2.Body.String(), expected2)
