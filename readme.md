@@ -10,6 +10,21 @@ Dependencies
 * Glog - Google's logging used by Kubernetes
 * Go-sqlite3 - Local DB for lightweight sql
 
+Usage
+--------
+```
+docker run -it -v $(pwd)/db:/data/db -p 8080:8080 kenichishibata/golang-http-test
+```
+If you are running on mac you might need to enable mounts on docker. https://docs.docker.com/docker-for-mac/osxfs/#namespaces
+
+Prerequisites
+------------
+* go version 1.12+
+* make
+* docker
+* kubectl 
+* helm
+
 Running test
 ---------------
 ```
