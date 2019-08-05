@@ -92,6 +92,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			var userFromBody *utils.User
 			errUnmarshalBody := json.Unmarshal(body, &userFromBody)
 			if errUnmarshalBody != nil {
+				glog.Warning("No JSON Found in Body:", errUnmarshalBody)
 				http.Error(w, "No JSON Found in Body", 500)
 				return
 			}
