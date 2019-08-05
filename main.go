@@ -35,9 +35,10 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			glog.Warning("Please input username")
 			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
 		} else {
-			errSelectDB, uCalc := data.SelectDB(&u)
+			uCalc, errSelectDB := data.SelectDB(&u)
 			if errSelectDB != nil {
 				glog.Error("Select: ", errSelectDB)
+				return
 			}
 
 			tmpl := template.New("User Template")
