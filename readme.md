@@ -76,6 +76,11 @@ POSTGRES_ENV_DB_NAME='mysite_staging'
 POSTGRES_PORT_5432_TCP_ADDR='docker-db-1.hidden.us-east-1.rds.amazonaws.com'
 ```
 
+The DBs need to created with the following SQL Statement
+```
+CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, birthdate TEXT)
+```
+
 Deployment and Rolling Updates 
 ---------------------
 The recommendation is to separate the stateful DB from the Application. As such having the App on a Kubernetes cluster and the DB on RDS or other stateful provider makes sense. This is to loosely couple the application from the DB. However we have to keep in mind any schema changes and makes sure that any newer updates are backwards compatible and easily understand by well known frameworks such as semver. 
