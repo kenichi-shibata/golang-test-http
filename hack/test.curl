@@ -10,7 +10,9 @@
  # PUT without user
  curl -X PUT localhost:8080/hello/
  # PUT without anything
- curl -X PUT localhost:8080/hello/world
+ curl -X PUT localhost:8080/hello/world66
+ # PUT with bad data
+ curl -X PUT localhost:8080/hello/world -d {}
  # this should pass
  curl -X GET localhost:8080/hello/world
  # this should pass with we cannot find your name message

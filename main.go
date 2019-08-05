@@ -23,8 +23,9 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	placeholderBirthdate := "2000-08-02"
 	usernameInPath := strings.Replace(r.URL.Path, "/hello/", "", -1)
-	u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: "2000-08-02"}
+	u := utils.User{Username: usernameInPath, DaysBeforeBirthday: 1, Birthdate: &placeholderBirthdate}
 
 	switch r.Method {
 	case "GET":
@@ -88,11 +89,16 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			var userFromBody utils.User
+			var userFromBody *utils.User
 			errUnmarshalBody := json.Unmarshal(body, &userFromBody)
 			if errUnmarshalBody != nil {
 				glog.Error("cannot unmarshal body: ", errUnmarshalBody)
 				http.Error(w, "No JSON Found in Body", 500)
+				return
+			}
+			if userFromBody.Birthdate == nil {
+				glog.Error("birthdate field required")
+				http.Error(w, "Birthdate Field required", 500)
 				return
 			}
 			glog.Info("unmarshalled user: ", &userFromBody)
