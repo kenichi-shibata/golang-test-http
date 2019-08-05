@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -23,7 +25,7 @@ func TestMainHandler(t *testing.T) {
 	}
 
 	// Test 2: Happy Path Happy Birthday/hello/health-check
-	req2, err2 := http.NewRequest("GET", "/hello/health-check", nil)
+	req2, err2 := http.NewRequest("GET", "/hello/idontexist", nil)
 	if err2 != nil {
 		t.Fatal(err2)
 	}
@@ -37,7 +39,7 @@ func TestMainHandler(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	expected2 := `{"message": "Hello health-check! We didn't find your birthday on our records! Please PUT your birthdate."}`
+	expected2 := `{"message": "Hello idontexist! We didn't find your birthday on our records! Please PUT your birthdate."}`
 	if rr2.Body.String() != expected2 {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr2.Body.String(), expected2)
@@ -97,14 +99,17 @@ func TestMainHandler(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr5.Body.String(), expected5)
 	}
-	// Test 6: Method PUT no birthdate
-	req6, err6 := http.NewRequest("PUT", "/hello/health-check", nil)
+	// Test 6: Method PUT happy path
+	data := url.Values{}
+	data.Set("dateOfBirth", "2019-08-11")
+	req6, err6 := http.NewRequest("PUT", "/hello/health-check", strings.NewReader(data.Encode()))
 	if err6 != nil {
 		t.Fatal(err6)
 	}
+	req6.Header.Add("Content-Type", "application/json")
+
 	rr6 := httptest.NewRecorder()
 	handler6 := http.HandlerFunc(MainHandler)
-
 	handler6.ServeHTTP(rr6, req6)
 
 	if status := rr6.Code; status != http.StatusInternalServerError {

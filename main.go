@@ -82,23 +82,22 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			body, errReadBody := ioutil.ReadAll(r.Body)
-			defer r.Body.Close()
 			if errReadBody != nil {
 				glog.Error("errReadBody:", errReadBody)
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				http.Error(w, "Empty Body", http.StatusInternalServerError)
 				return
 			}
+			defer r.Body.Close()
 
 			var userFromBody *utils.User
 			errUnmarshalBody := json.Unmarshal(body, &userFromBody)
 			if errUnmarshalBody != nil {
-				glog.Error("cannot unmarshal body: ", errUnmarshalBody)
 				http.Error(w, "No JSON Found in Body", 500)
 				return
 			}
 			if userFromBody.Birthdate == nil {
-				glog.Error("birthdate field required")
-				http.Error(w, "Birthdate Field required", 500)
+				glog.Error("dateOfBirth field required")
+				http.Error(w, "dateOfBirth Field required", 500)
 				return
 			}
 			glog.Info("unmarshalled user: ", &userFromBody)
