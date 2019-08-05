@@ -64,10 +64,12 @@ func SelectDB(user *utils.User) (userCalc utils.User, errSelectDB error) {
 		glog.Fatal(errSQLOpen)
 		panic(errSQLOpen)
 	}
+	defer database.Close()
 	// this query needs to be changed to only return 1 or 0 entries not more than 1
 	selectQuery := "SELECT id, name, birthdate FROM users WHERE name=?"
 	rows := database.QueryRow(selectQuery, user.Username)
 	errQuery := rows.Scan(&id, &name, &birthdate)
+	glog.Info(errQuery)
 	glog.Info("selectquery: ", selectQuery)
 
 	switch {
@@ -83,7 +85,6 @@ func SelectDB(user *utils.User) (userCalc utils.User, errSelectDB error) {
 		uCalc := calcDayDiff(birthdate, user)
 		return uCalc, nil
 	}
-	// This shouldn't happen but we do defensive programming here!
 	// By default int falsy is 0 which makes it seem like its birthday day, if we leave it utils.User{}
 	// return utils.User{Username: user.Username, Birthdate: user.Birthdate, DaysBeforeBirthday: -365}, errors.New("Unknown switch case")
 }

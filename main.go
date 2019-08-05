@@ -37,8 +37,15 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			uCalc, errSelectDB := data.SelectDB(&u)
 			if errSelectDB != nil {
-				glog.Error("Select: ", errSelectDB)
-				return
+				switch errSelectDB.(type) {
+				case *utils.SQLRecordNotFoundError:
+					glog.Warning("Select: ", errSelectDB)
+					fmt.Fprintf(w, "{\"message\": \"Hello %v! We didn't find your birthday on our records! Please PUT your birthdate.\"}", usernameInPath)
+					return
+				default:
+					glog.Error("Select: ", errSelectDB)
+					return
+				}
 			}
 
 			tmpl := template.New("User Template")
@@ -71,12 +78,13 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 		if usernameInPath == "" {
 			glog.Warning("Please input username")
 			fmt.Fprintf(w, "{\"message\": \"Please input username\"}")
+			return
 		} else {
 			body, errReadBody := ioutil.ReadAll(r.Body)
 			defer r.Body.Close()
 			if errReadBody != nil {
-				glog.Error(errReadBody)
-				http.Error(w, errReadBody.Error(), 500)
+				glog.Error("errReadBody:", errReadBody)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
 
@@ -84,7 +92,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			errUnmarshalBody := json.Unmarshal(body, &userFromBody)
 			if errUnmarshalBody != nil {
 				glog.Error("cannot unmarshal body: ", errUnmarshalBody)
-				http.Error(w, errUnmarshalBody.Error(), 500)
+				http.Error(w, "No JSON Found in Body", 500)
 				return
 			}
 			glog.Info("unmarshalled user: ", &userFromBody)
@@ -94,6 +102,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			if errInsertDB != nil {
 				glog.Error(errInsertDB)
 				http.Error(w, errInsertDB.Error(), 500)
+				return
 			}
 			w.WriteHeader(204)
 		}

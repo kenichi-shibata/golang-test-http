@@ -97,7 +97,7 @@ func TestMainHandler(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr5.Body.String(), expected5)
 	}
-	// Test 6: Method PUT happy path
+	// Test 6: Method PUT no birthdate
 	req6, err6 := http.NewRequest("PUT", "/hello/health-check", nil)
 	if err6 != nil {
 		t.Fatal(err6)
@@ -107,9 +107,8 @@ func TestMainHandler(t *testing.T) {
 
 	handler6.ServeHTTP(rr6, req6)
 
-	if status := rr6.Code; status != http.StatusNoContent {
+	if status := rr6.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusNoContent)
 	}
-
 }

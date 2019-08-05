@@ -1,8 +1,19 @@
  # this should pass
- curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}' -vvv
+ set -o xtrace
+
+ rm -f ../users.db
+ curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
  # this should fail you cannot change your birthday
  curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-03"}'
  # this should pass because of idempotency
- curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}' -vvv
-
+ curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
+ # PUT without user
+ curl -X PUT localhost:8080/hello/
+ # PUT without anything
+ curl -X PUT localhost:8080/hello/world
+ # this should pass
  curl -X GET localhost:8080/hello/world
+ # this should pass with we cannot find your name message
+ curl -X GET localhost:8080/hello/idontexist
+ # this should fail with i cannot find your username
+ curl -X GET localhost:8080/hello/
