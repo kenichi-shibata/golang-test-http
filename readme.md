@@ -10,13 +10,13 @@ Dependencies
 * Glog - Google's logging used by Kubernetes
 * Go-sqlite3 - Local DB for lightweight sql
 
-Usage Local Setup
+Usage Local Docker Setup
 --------
 ```
 git clone git@github.com:kenichi-shibata/golang-http-test
 cd golang-http-test
 mkdir db
-docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 kenichishibata/golang-http-test:15813e9
+docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:15813e9
 ```
 If you are running on mac you might need to enable mounts on docker. https://docs.docker.com/docker-for-mac/osxfs/#namespaces
 
@@ -28,6 +28,36 @@ sh hack/test.curl
 
 The DB Created via sqlite3 will be stored on your $(pwd)/db
 
+Development
+------------
+Once you have local docker environment setup. Development can be done locally
+as well via Makefiles
+
+```
+make run
+make test
+```
+
+### Tidying up dependencies
+
+```
+go mod tidy
+```
+
+### Build Docker image
+```
+
+make build
+```
+### Run Docker image
+```
+docker run -it -v $(pwd)/db:/app/db -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:<GIT_HASH>
+```
+### Registry
+```
+docker push quay.io/kenichi_shibata/golang-http-test:<GIT_HASH>
+```
+
 Prerequisites
 ------------
 * go version 1.12+
@@ -36,41 +66,16 @@ Prerequisites
 * kubectl
 * helm
 
-Running test
----------------
-```
-make test
-```
-
-
-Development
-------------
-Local Run
-```
-make run
-```
-
-Tidying up dependencies
-```
-go mod tidy
-```
-
-Docker
----------
-Build
-```
-
-make build
-```
-Run
-```
-docker run -it kenichishibata/golang-http-test:<GIT_HASH>
-```
-
-
-Deploy Remotely
+Deployment
+-----------------
+Deploy Remotely via Kops
 ```
 make deploy TYPE=kubernetes
+```
+
+Deploy Remotely via EKS
+```
+make deploy TYPE=eks
 ```
 
 Changing DB
