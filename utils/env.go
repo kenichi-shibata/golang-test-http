@@ -7,6 +7,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// ENV (POSTGRES OR MYSQL)
+// defaults to sqlite for local dev running as volume mounted
+
 func SQLOpen() (database *sql.DB, errSQLOpen error) {
 	database, errSQLOpen = sql.Open("sqlite3", "./db/users.db")
 	if errSQLOpen != nil {
