@@ -97,5 +97,8 @@ apiVersion:
 kind: 
 ```
 
+Helm Chart Deployment
+------------
+
 Architecture on AWS Deployment using Kops
 ======================

@@ -15,10 +15,12 @@ import (
 const layoutISO = "2006-01-02" // https://golang.org/pkg/time/#Parse
 
 func SetupDB() error {
-	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
+	database, errSQLOpen := utils.SQLOpen()
 	if errSQLOpen != nil {
+		glog.Error(errSQLOpen)
 		return errSQLOpen
 	}
+	defer database.Close()
 
 	statementPrepareCreateTable, errPrepareCreateTable := database.Prepare("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, birthdate TEXT)")
 	if errPrepareCreateTable != nil {
@@ -35,10 +37,12 @@ func SetupDB() error {
 }
 
 func InsertDB(user *utils.User) error {
-	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
+	database, errSQLOpen := utils.SQLOpen()
 	if errSQLOpen != nil {
+		glog.Error(errSQLOpen)
 		return errSQLOpen
 	}
+	defer database.Close()
 
 	statementPrepareInsertData, errPrepareInsertData := database.Prepare("INSERT INTO users (name, birthdate) VALUES (?, ?)")
 	if errPrepareInsertData != nil {
@@ -59,13 +63,13 @@ func SelectDB(user *utils.User) (userCalc utils.User, errSelectDB error) {
 	var name string
 	var birthdate string
 
-	database, errSQLOpen := sql.Open("sqlite3", "./users.db")
+	database, errSQLOpen := utils.SQLOpen()
 	if errSQLOpen != nil {
-		glog.Fatal(errSQLOpen)
+		glog.Error(errSQLOpen)
 		panic(errSQLOpen)
 	}
 	defer database.Close()
-	// this query needs to be changed to only return 1 or 0 entries not more than 1
+
 	selectQuery := "SELECT id, name, birthdate FROM users WHERE name=?"
 	rows := database.QueryRow(selectQuery, user.Username)
 	errQuery := rows.Scan(&id, &name, &birthdate)
