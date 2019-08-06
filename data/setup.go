@@ -14,28 +14,6 @@ import (
 
 const layoutISO = "2006-01-02" // https://golang.org/pkg/time/#Parse
 
-func SetupDB() error {
-	database, errSQLOpen := utils.SQLOpen()
-	if errSQLOpen != nil {
-		glog.Error(errSQLOpen)
-		return errSQLOpen
-	}
-	defer database.Close()
-
-	statementPrepareCreateTable, errPrepareCreateTable := database.Prepare("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, birthdate TEXT)")
-	if errPrepareCreateTable != nil {
-		return errPrepareCreateTable
-	}
-
-	_, errExecCreateTable := statementPrepareCreateTable.Exec()
-	if errExecCreateTable != nil {
-		return errExecCreateTable
-	}
-
-	glog.Info("DB Ensured")
-	return nil
-}
-
 func InsertDB(user *utils.User) error {
 	database, errSQLOpen := utils.SQLOpen()
 	if errSQLOpen != nil {

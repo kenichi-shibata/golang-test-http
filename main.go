@@ -125,11 +125,6 @@ func main() {
 	flag.Set("v", "2")
 	flag.Parse()
 
-	errSetupDB := data.SetupDB()
-	if errSetupDB != nil {
-		glog.Fatal(errSetupDB)
-	}
-
 	http.HandleFunc("/hello/", MainHandler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }
