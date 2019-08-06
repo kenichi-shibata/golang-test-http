@@ -16,7 +16,7 @@ Usage Local Docker Setup
 git clone git@github.com:kenichi-shibata/golang-http-test
 cd golang-http-test
 mkdir db
-docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:15813e9
+docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:24da791
 ```
 If you are running on mac you might need to enable mounts on docker. https://docs.docker.com/docker-for-mac/osxfs/#namespaces
 
