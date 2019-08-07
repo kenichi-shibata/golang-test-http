@@ -1,7 +1,7 @@
- # this should pass
+ # we can use this as a script for integration testing with a live postgres
+ # or mysql remote db like aws rds
  set -o xtrace
 
- rm -f ../users.db
  curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
  # this should fail you cannot change your birthday
  curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-03"}'
