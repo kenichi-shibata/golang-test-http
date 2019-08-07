@@ -80,10 +80,14 @@ make deploy TYPE=eks
 
 Changing DB
 --------------------
-By default the application uses sqlite file created as `users.db` on the local mounts. If you want to use a remote SQL DB like RDS. Please specify this in the environment variables like
+Currently this application only supports sqlite3 and postgres.
+
+By default the application uses sqlite3 file created as `users.db` on the local mounts. If you want to use a remote SQL DB like RDS. Please specify this in the environment variables like
+
 ```
-docker run -it kenichishibata/golang-http-test --env-file
+docker run --env-file changeme.env -p 8080:8080 -it quay.io/kenichi_shibata/golang-http-test:47f45ec
 ```
+
 Where your env file will have for postgres
 ```
 export DB_TYPE=postgres
@@ -103,15 +107,38 @@ and Postgres
 ```
 CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, birthdate TEXT)
 ```
+You can use a AWS RDS Postgres for deployment of database. Or if your kubernetes cluster supports statefulsets you can setup a postgres database quite easily using helm.
 
 Deployment and Rolling Updates
 ---------------------
 The recommendation is to separate the stateful DB from the Application. As such having the App on a Kubernetes cluster and the DB on RDS or other stateful provider makes sense. This is to loosely couple the application from the DB. However we have to keep in mind any schema changes and makes sure that any newer updates are backwards compatible and easily understand by well known frameworks such as semver.
 
-Here is an example of how you would do a Rolling Update for the application with zero downtime
+Here is an example of how you would do a Rolling Update for the application with zero downtime.
+
+```
+kubectl create namespace -n test-namespace
+kubectl apply -f manifests/ -n test-namespace
+kubectl rollout -n test-namespace
+```
+
+Doing a rolling update is as simple as changing the image on the `deployment.yaml` manifest
+
 ```
 apiVersion:
 kind:
+image: <HERE>
+```
+You must also change the configuration of the DB via `configmap.yaml` and store the password in `secret.yaml`. They are mounted as environment variables when deploying the containers.
+
+Proxying to local once deployed
+
+```
+kubectl port-forward deployment/golang-http-test 8080 -n test-namespace
+```
+
+Cleaning up 
+```
+kubectl delete namespace test-namespace
 ```
 
 Helm Chart Deployment
