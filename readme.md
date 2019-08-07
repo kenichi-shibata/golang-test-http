@@ -84,17 +84,24 @@ By default the application uses sqlite file created as `users.db` on the local m
 ```
 docker run -it kenichishibata/golang-http-test --env-file
 ```
-Where your env file will have
+Where your env file will have for postgres
 ```
-POSTGRES_ENV_POSTGRES_PASSWORD='foo'
-POSTGRES_ENV_POSTGRES_USER='bar'
-POSTGRES_ENV_DB_NAME='mysite_staging'
-POSTGRES_PORT_5432_TCP_ADDR='docker-db-1.hidden.us-east-1.rds.amazonaws.com'
+export DB_TYPE=postgres
+export POSTGRES_ENV_POSTGRES_USER=postgres
+export POSTGRES_ENV_POSTGRES_PASSWORD=foo 
+export POSTGRES_ENV_DB_NAME=users
+export POSTGRES_ENV_PORT_5432_TCP_ADDR=database-1.xxxx.eu-west-1.rds.amazonaws.com
+export POSTGRES_ENV_SSL_MODE=verify-full
 ```
+Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged. 
 
-The DBs need to created with the following SQL Statement
+The DBs need to created with the following SQL Statement for SQLite
 ```
 CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, birthdate TEXT)
+```
+and Postgres
+```
+CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT, birthdate TEXT)
 ```
 
 Deployment and Rolling Updates

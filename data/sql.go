@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +15,11 @@ import (
 
 const layoutISO = "2006-01-02" // https://golang.org/pkg/time/#Parse
 
+const postgresInsert = `INSERT INTO users (name, birthdate) VALUES ($1, $2)`
+const sqliteInsert = `INSERT INTO users (name, birthdate) VALUES (?, ?)`
+const postgresSelect = `SELECT id, name, birthdate FROM users WHERE name=$1`
+const sqliteSelect = `SELECT id, name, birthdate FROM users WHERE name=?`
+
 func InsertDB(user *utils.User) error {
 	database, errSQLOpen := utils.SQLOpen()
 	if errSQLOpen != nil {
@@ -22,16 +28,25 @@ func InsertDB(user *utils.User) error {
 	}
 	defer database.Close()
 
-	statementPrepareInsertData, errPrepareInsertData := database.Prepare("INSERT INTO users (name, birthdate) VALUES (?, ?)")
+	var dbInsertStmt string
+	dbType := os.Getenv("DB_TYPE")
+	if dbType == "postgres" {
+		dbInsertStmt = postgresInsert
+	} else {
+		dbInsertStmt = sqliteInsert
+	}
+
+	statementPrepareInsertData, errPrepareInsertData := database.Prepare(dbInsertStmt)
 	if errPrepareInsertData != nil {
 		return errPrepareInsertData
 	}
 
-	_, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
+	insertData, errExecInsertData := statementPrepareInsertData.Exec(user.Username, user.Birthdate)
 	if errExecInsertData != nil {
 		return errExecInsertData
 	}
 
+	glog.Info("Insert: ", insertData)
 	glog.Info("Insert Ensured")
 	return nil
 }
@@ -48,7 +63,15 @@ func SelectDB(user *utils.User) (userCalc utils.User, errSelectDB error) {
 	}
 	defer database.Close()
 
-	selectQuery := "SELECT id, name, birthdate FROM users WHERE name=?"
+	var dbSelectStmt string
+	dbType := os.Getenv("DB_TYPE")
+	if dbType == "postgres" {
+		dbSelectStmt = postgresSelect
+	} else {
+		dbSelectStmt = sqliteSelect
+	}
+
+	selectQuery := dbSelectStmt
 	rows := database.QueryRow(selectQuery, user.Username)
 	errQuery := rows.Scan(&id, &name, &birthdate)
 	glog.Info(errQuery)
