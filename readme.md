@@ -90,12 +90,12 @@ docker run --env-file changeme.env -p 8080:8080 -it quay.io/kenichi_shibata/gola
 
 Where your env file will have for postgres
 ```
-export DB_TYPE=postgres
-export POSTGRES_ENV_POSTGRES_USER=postgres
-export POSTGRES_ENV_POSTGRES_PASSWORD=foo 
-export POSTGRES_ENV_DB_NAME=users
-export POSTGRES_ENV_PORT_5432_TCP_ADDR=database-1.xxxx.eu-west-1.rds.amazonaws.com
-export POSTGRES_ENV_SSL_MODE=verify-full
+DB_TYPE=postgres
+POSTGRES_ENV_POSTGRES_USER=postgres
+POSTGRES_ENV_POSTGRES_PASSWORD=foo 
+POSTGRES_ENV_DB_NAME=users
+POSTGRES_ENV_PORT_5432_TCP_ADDR=database-1.xxxx.eu-west-1.rds.amazonaws.com
+POSTGRES_ENV_SSL_MODE=verify-full
 ```
 Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged. 
 
