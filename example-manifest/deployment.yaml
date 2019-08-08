@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golang-http-test
+  labels:
+    app: golang-http-test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: golang-http-test
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: golang-http-test
+    spec:
+      serviceAccountName: golang-http-test
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - golang-http-test
+              topologyKey: failure-domain.beta.kubernetes.io/zone 
+      containers:
+      - image: "quay.io/kenichi_shibata/golang-http-test:c94fb67"
+        imagePullPolicy: IfNotPresent
+        name: golang-http-test
+        # args:
+        # command:
+        # securityContext:
+        #   readOnlyRootFilesystem: true
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        ports:
+        - name: http
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 1
+          timeoutSeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 1
+          timeoutSeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+          - name: rds-combined-cert
+            mountPath: /usr/local/share/ca-certificates/
+        env:
+        - name: DB_TYPE
+          valueFrom:
+            configMapKeyRef:
+              name: golang-http-test-config
+              key: dbType
+        - name: POSTGRES_ENV_DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: golang-http-test-config
+              key: dbName
+        - name: POSTGRES_ENV_TCP_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: golang-http-test-config
+              key: tcpAddr
+        - name: POSTGRES_ENV_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: golang-http-test-config
+              key: port
+        - name: POSTGRES_ENV_SSL_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: golang-http-test-config
+              key: sslMode
+        - name: POSTGRES_ENV_ROOT_CERT
+          value: /usr/local/share/ca-certificates/rds-combined-cert.crt
+        - name: POSTGRES_ENV_POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-rds-secret
+              key: username
+        - name: POSTGRES_ENV_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-rds-secret
+              key: password
+      volumes:
+        - name: rds-combined-cert
+          configMap:
+            name: rds-combined-cert

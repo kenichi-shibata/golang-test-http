@@ -1,3 +1,4 @@
 *.db
 golang-http-test
 certs/
+local-manifest/

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: golang-http-test-config
+data:
+  dbType: postgres
+  dbName: users
+  tcpAddr: database-postgres.xxxxx.eu-west-1.rds.amazonaws.com
+  port: "5432"
+  sslMode: require

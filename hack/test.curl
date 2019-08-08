@@ -2,20 +2,20 @@
  # or mysql remote db like aws rds
  set -o xtrace
 
- curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
+ curl -X PUT 127.0.0.1:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
  # this should fail you cannot change your birthday
- curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-03"}'
+ curl -X PUT 127.0.0.1:8080/hello/world -d '{"dateOfBirth": "2019-01-03"}'
  # this should pass because of idempotency
- curl -X PUT localhost:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
+ curl -X PUT 127.0.0.1:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
  # PUT without user
- curl -X PUT localhost:8080/hello/
+ curl -X PUT 127.0.0.1:8080/hello/
  # PUT without anything
- curl -X PUT localhost:8080/hello/world66
+ curl -X PUT 127.0.0.1:8080/hello/world66
  # PUT with bad data
- curl -X PUT localhost:8080/hello/world -d {}
+ curl -X PUT 127.0.0.1:8080/hello/world -d {}
  # this should pass
- curl -X GET localhost:8080/hello/world
+ curl -X GET 127.0.0.1:8080/hello/world
  # this should pass with we cannot find your name message
- curl -X GET localhost:8080/hello/idontexist
+ curl -X GET 127.0.0.1:8080/hello/idontexist
  # this should fail with i cannot find your username
- curl -X GET localhost:8080/hello/
+ curl -X GET 127.0.0.1:8080/hello/

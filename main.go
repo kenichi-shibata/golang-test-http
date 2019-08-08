@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -119,6 +120,10 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HealthHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Health check OK from %q", html.EscapeString(r.URL.Path))
+}
+
 func main() {
 	flag.Set("logtostderr", "false")
 	flag.Set("stderrthreshold", "INFO")
@@ -126,5 +131,6 @@ func main() {
 	flag.Parse()
 
 	http.HandleFunc("/hello/", MainHandler)
+	http.HandleFunc("/healthz", HealthHandler)
 	glog.Fatal(http.ListenAndServe(":8080", nil))
 }
