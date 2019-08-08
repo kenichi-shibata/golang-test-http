@@ -84,10 +84,10 @@ POSTGRES_ENV_POSTGRES_PASSWORD=foo
 POSTGRES_ENV_DB_NAME=users
 POSTGRES_ENV_TCP_ADDR=database-1.xxxx.eu-west-1.rds.amazonaws.com
 POSTGRES_ENV_PORT=5432
-POSTGRES_ENV_SSL_MODE=verify-full
+POSTGRES_ENV_SSL_MODE=require
 POSTGRES_ENV_ROOT_CERT=/path/to/rootcert
 ```
-Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set the rootcert from the machine to trust the db.  Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged. 
+Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set the rootcert from the machine to trust the db via `POSTGRES_ENV_ROOT_CERT=/path/to/rootcert`.  Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged. 
 
 `DB_NAME` should already exists using `default` as `DB_NAME` will work but discouragrd for production use.
 
@@ -97,9 +97,9 @@ AWS RDS Postgres
 Download the RDS root cert 
 ```
 mkdir $(pwd)/certs
-wget -o $(pwd)/certs/rds-certs.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+wget -O $(pwd)/certs/rds-certs.crt https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
-export POSTGRES_ENV_SSL_MODE=verify-full
+export POSTGRES_ENV_SSL_MODE=require
 export POSTGRES_ENV_ROOT_CERT=$(pwd)/certs/rds-certs.pem
 // or update the env file
 ```
@@ -169,3 +169,13 @@ make deploy TYPE=eks
 
 Architecture on AWS Deployment using Kops
 ======================
+
+TODO
+-----
+* [] Fix the insert to update instead (currently PUT creates a new record and on GET you only get the first record and ignoring the records created after that)
+* [] Fix insert to be idempotent
+* [] make name to be the primary key
+* [x] Make the DB configurable to use an external SQL db like RDS
+* [] Create terraform script for vpc, subnet creation, igw, rds
+* [x] Make the DB configurable to be a mounted volume
+* [] Create a Kubernetes Manifest and a helm char
