@@ -80,22 +80,22 @@ Where your env file will have for postgres
 ```
 DB_TYPE=postgres
 POSTGRES_ENV_POSTGRES_USER=postgres
-POSTGRES_ENV_POSTGRES_PASSWORD=foo 
+POSTGRES_ENV_POSTGRES_PASSWORD=foo
 POSTGRES_ENV_DB_NAME=users
 POSTGRES_ENV_TCP_ADDR=database-1.xxxx.eu-west-1.rds.amazonaws.com
 POSTGRES_ENV_PORT=5432
 POSTGRES_ENV_SSL_MODE=require
 POSTGRES_ENV_ROOT_CERT=/path/to/rootcert
 ```
-Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set the rootcert from the machine to trust the db via `POSTGRES_ENV_ROOT_CERT=/path/to/rootcert`.  Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged. 
+Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set the rootcert from the machine to trust the db via `POSTGRES_ENV_ROOT_CERT=/path/to/rootcert`.  Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged.
 
 `DB_NAME` should already exists using `default` as `DB_NAME` will work but discouragrd for production use.
 
 AWS RDS Postgres
 -------
-Once you have aws rds postgres provisioned and users db created. 
+Once you have aws rds postgres provisioned and users db created.
 
-Download the RDS root cert 
+Download the RDS root cert
 ```
 mkdir $(pwd)/certs
 wget -O $(pwd)/certs/rds-certs.crt https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
@@ -133,6 +133,11 @@ Here is an example of how you would do a Rolling Update for the application with
 
 You must also change the configuration of the DB via `configmap.yaml` and store the password in `secret.yaml`. They are mounted as environment variables when deploying the containers.
 
+```
+cp -R example-manifest/ manifest/
+# update the secret.yaml and configmap.yaml
+# the rds certificate is already attached to the configmap-rds
+```
 
 ```
 kubectl create namespace -n test-namespace
@@ -154,7 +159,7 @@ kubectl apply -f manifests/ -n test-namespace
 If you are running rds and kubernetes make sure you have the Kubernetes NAT Gateways or wherever your cluster ips are coming from, whitelisted in the RDS security group otherwise you will get timeouts like.
 
 ```
-[golang-http-test-64c45c947b-bc67v] E0808 14:08:29.062823       1 sql.go:61] dial tcp 54.77.180.247:5432: connect: connection timed out 
+[golang-http-test-64c45c947b-bc67v] E0808 14:08:29.062823       1 sql.go:61] dial tcp 54.77.180.247:5432: connect: connection timed out
 ```
 ### Proxying to local once deployed
 
@@ -167,7 +172,7 @@ Try to run the sample curl commands again
 sh hack/test.curl
 ```
 
-Cleaning up 
+Cleaning up
 ```
 kubectl delete namespace test-namespace
 ```
@@ -185,5 +190,5 @@ TODO
 * [x] Make the DB configurable to use an external SQL db like RDS
 * [] Create terraform script for vpc, subnet creation, igw, rds
 * [x] Make the DB configurable to be a mounted volume
-* [x] Create a Kubernetes Manifest 
+* [x] Create a Kubernetes Manifest
 * [] Create a helm chart

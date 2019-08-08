@@ -29,7 +29,7 @@ spec:
                   - golang-http-test
               topologyKey: failure-domain.beta.kubernetes.io/zone 
       containers:
-      - image: "quay.io/kenichi_shibata/golang-http-test:c94fb67"
+      - image: "quay.io/kenichi_shibata/golang-http-test:35de0c6"
         imagePullPolicy: IfNotPresent
         name: golang-http-test
         # args:
