@@ -29,9 +29,20 @@ func SQLOpen() (database *sql.DB, errSQLOpen error) {
 		user := os.Getenv("POSTGRES_ENV_POSTGRES_USER")
 		password := os.Getenv("POSTGRES_ENV_POSTGRES_PASSWORD")
 		dbName := os.Getenv("POSTGRES_ENV_DB_NAME")
-		tcpAddr := os.Getenv("POSTGRES_ENV_PORT_5432_TCP_ADDR")
+		tcpAddr := os.Getenv("POSTGRES_ENV_TCP_ADDR")
+		port := os.Getenv("POSTGRES_ENV_PORT")
 		sslMode := os.Getenv("POSTGRES_ENV_SSL_MODE")
-		connString := fmt.Sprintf("postgres://" + user + ":" + password + "@" + tcpAddr + "/" + dbName + "?sslmode=" + sslMode)
+		rootCert := os.Getenv("POSTGRES_ENV_ROOT_CERT")
+		// connString := fmt.Sprintf("postgres://" + user + ":" + password + "@" + tcpAddr + "/" + dbName + "?sslmode=" + sslMode)
+		connString := fmt.Sprintf("dbname=%s user=%s password=%s host=%s port=%s sslmode=%s sslrootcert=%s",
+			dbName,
+			user,
+			password,
+			tcpAddr,
+			port,
+			sslMode,
+			rootCert)
+
 		database, errSQLOpen = sql.Open("postgres", connString)
 		if errSQLOpen != nil {
 			return nil, errSQLOpen
