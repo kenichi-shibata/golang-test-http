@@ -16,7 +16,7 @@ Usage Local Docker Setup
 git clone git@github.com:kenichi-shibata/golang-http-test
 cd golang-http-test
 mkdir db
-docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:24da791
+docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:c94fb67
 ```
 If you are running on mac you might need to enable mounts on docker. https://docs.docker.com/docker-for-mac/osxfs/#namespaces
 
@@ -26,7 +26,7 @@ Once you have the application running you can run a series of request for checki
 sh hack/test.curl
 ```
 
-The DB Created via sqlite3 will be stored on your $(pwd)/db
+The DB Created via sqlite3 will be stored on your `$(pwd)/db/users.db`
 
 Development
 ------------
@@ -66,18 +66,6 @@ Prerequisites
 * kubectl
 * helm
 
-Deployment
------------------
-Deploy Remotely via Kops
-```
-make deploy TYPE=kubernetes
-```
-
-Deploy Remotely via EKS
-```
-make deploy TYPE=eks
-```
-
 Changing DB
 --------------------
 Currently this application only supports sqlite3 and postgres.
@@ -85,7 +73,7 @@ Currently this application only supports sqlite3 and postgres.
 By default the application uses sqlite3 file created as `users.db` on the local mounts. If you want to use a remote SQL DB like RDS. Please specify this in the environment variables like
 
 ```
-docker run --env-file changeme.env -p 8080:8080 -it quay.io/kenichi_shibata/golang-http-test:47f45ec
+docker run --env-file changeme.env -p 8080:8080 -it quay.io/kenichi_shibata/golang-http-test:c94fb67
 ```
 
 Where your env file will have for postgres
@@ -94,10 +82,33 @@ DB_TYPE=postgres
 POSTGRES_ENV_POSTGRES_USER=postgres
 POSTGRES_ENV_POSTGRES_PASSWORD=foo 
 POSTGRES_ENV_DB_NAME=users
-POSTGRES_ENV_PORT_5432_TCP_ADDR=database-1.xxxx.eu-west-1.rds.amazonaws.com
+POSTGRES_ENV_TCP_ADDR=database-1.xxxx.eu-west-1.rds.amazonaws.com
+POSTGRES_ENV_PORT=5432
 POSTGRES_ENV_SSL_MODE=verify-full
+POSTGRES_ENV_ROOT_CERT=/path/to/rootcert
 ```
-Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged. 
+Make sure your database connection encryption is using a known certificate authority otherwise the connection will fail. Or you can set the rootcert from the machine to trust the db.  Or you can set `POSTGRES_ENV_SSL_MODE=disable` but this is highly discouraged. 
+
+`DB_NAME` should already exists using `default` as `DB_NAME` will work but discouragrd for production use.
+
+AWS RDS Postgres
+-------
+
+Download the RDS root cert 
+```
+mkdir $(pwd)/certs
+wget -o $(pwd)/certs/rds-certs.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+export POSTGRES_ENV_SSL_MODE=verify-full
+export POSTGRES_ENV_ROOT_CERT=$(pwd)/certs/rds-certs.pem
+// or update the env file
+```
+
+Further documentation in AWS Docs https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html.
+
+
+DB Creation
+---------
 
 The DBs need to created with the following SQL Statement for SQLite
 ```
@@ -143,6 +154,18 @@ kubectl delete namespace test-namespace
 
 Helm Chart Deployment
 ------------
+
+Makefile Deployment
+-----------------
+Deploy Remotely via Kops
+```
+make deploy TYPE=kubernetes
+```
+
+Deploy Remotely via EKS
+```
+make deploy TYPE=eks
+```
 
 Architecture on AWS Deployment using Kops
 ======================

@@ -97,7 +97,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if userFromBody.Birthdate == nil {
-				glog.Error("dateOfBirth field required")
+				glog.Warning("dateOfBirth field required")
 				http.Error(w, "dateOfBirth Field required", 500)
 				return
 			}
