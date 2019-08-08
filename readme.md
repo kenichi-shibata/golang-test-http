@@ -159,7 +159,7 @@ kubectl apply -f manifests/ -n test-namespace
 If you are running rds and kubernetes make sure you have the Kubernetes NAT Gateways or wherever your cluster ips are coming from, whitelisted in the RDS security group otherwise you will get timeouts like.
 
 ```
-[golang-http-test-64c45c947b-bc67v] E0808 14:08:29.062823       1 sql.go:61] dial tcp 54.77.180.247:5432: connect: connection timed out
+[golang-http-test-64c45c947b-bc67v] E0808 14:08:29.062823       1 sql.go:61] dial tcp x.x.x.x:5432: connect: connection timed out
 ```
 ### Proxying to local once deployed
 
@@ -176,6 +176,26 @@ Cleaning up
 ```
 kubectl delete namespace test-namespace
 ```
+
+### Setting up with Loadbalancer and DNS
+
+Assuming everything went well before this and you would like to deploy this to as working Kubernetes Cluster using Load Balancer.
+
+Change `service.yaml`
+```
+  type: ClusterIP
+	# =>
+	type: LoadBalancer
+```
+
+Create a record in your Route53 DNS server with the CNAME of the created loadbalancer.
+
+For example:
+```
+abcd.example.com CNAME abcd-elb-eu-west-1.amazonaws.com
+```
+
+You application will now be reachable on `abcd.example.com`
 
 Helm Chart Deployment
 ------------
