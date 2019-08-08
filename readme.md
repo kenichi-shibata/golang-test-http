@@ -197,6 +197,11 @@ abcd.example.com CNAME abcd-elb-eu-west-1.amazonaws.com
 
 You application will now be reachable on `abcd.example.com`
 
+Setting up on AWS EKS
+------------------
+The easiest way to set this up is use a [cattle cluster](https://thenewstack.io/how-to-treat-your-kubernetes-clusters-like-cattle-not-pets/)
+via [eks-cluster repo](https://github.com/kenichi-shibata/eks-cluster)
+
 Helm Chart Deployment
 ------------
 
