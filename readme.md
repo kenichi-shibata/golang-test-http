@@ -180,15 +180,19 @@ kubectl delete namespace test-namespace
 Helm Chart Deployment
 ------------
 
-Architecture on AWS Deployment using Kops
+Architecture on AWS Deployment using EKS 
 ======================
+Using two AWS Accounts one used for Stateful Sets and DBs. And Another AWS Account for Stateless workloads
+
+![](./Golang-HTTP-Test.png)
 
 TODO
 -----
-* [] Fix the insert to update instead (currently PUT creates a new record and on GET you only get the first record and ignoring the records created after that)
-* [] Fix insert to be idempotent
+* [ ] Fix the insert to update instead (currently PUT creates a new record and on GET you only get the first record and ignoring the records created after that)
+* [ ] Fix insert to be idempotent
 * [x] Make the DB configurable to use an external SQL db like RDS
-* [] Create terraform script for vpc, subnet creation, igw, rds
+* [ ] Create terraform script for vpc, subnet creation, igw, rds
 * [x] Make the DB configurable to be a mounted volume
 * [x] Create a Kubernetes Manifest
-* [] Create a helm chart
+* [ ] Create a helm chart
+* [ ] Make log level configurable and the environment variables passed on via command line arguments
