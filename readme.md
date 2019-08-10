@@ -16,7 +16,7 @@ Usage Local Docker Setup
 git clone git@github.com:kenichi-shibata/golang-http-test
 cd golang-http-test
 mkdir db
-docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:c94fb67
+docker run -it -v $(pwd)/db:/app/db/ -p 8080:8080 quay.io/kenichi_shibata/golang-http-test:8e8dbdd
 ```
 If you are running on mac you might need to enable mounts on docker. https://docs.docker.com/docker-for-mac/osxfs/#namespaces
 
@@ -73,7 +73,7 @@ Currently this application only supports sqlite3 and postgres.
 By default the application uses sqlite3 file created as `users.db` on the local mounts. If you want to use a remote SQL DB like RDS. Please specify this in the environment variables like
 
 ```
-docker run --env-file changeme.env -p 8080:8080 -it quay.io/kenichi_shibata/golang-http-test:c94fb67
+docker run --env-file changeme.env -p 8080:8080 -it quay.io/kenichi_shibata/golang-http-test:8e8dbdd
 ```
 
 Where your env file will have for postgres
@@ -205,7 +205,7 @@ via [eks-cluster repo](https://github.com/kenichi-shibata/eks-cluster)
 Helm Chart Deployment
 ------------
 
-Architecture on AWS Deployment using EKS 
+Architecture on AWS Deployment using EKS
 ======================
 Using two AWS Accounts one used for Stateful Sets and DBs. And Another AWS Account for Stateless workloads
 
@@ -213,8 +213,8 @@ Using two AWS Accounts one used for Stateful Sets and DBs. And Another AWS Accou
 
 TODO
 -----
-* [ ] Fix the insert to update instead (currently PUT creates a new record and on GET you only get the first record and ignoring the records created after that)
-* [ ] Fix insert to be idempotent
+* [x] Fix the insert to update instead (currently PUT creates a new record and on GET you only get the first record and ignoring the records created after that)
+* [x] Fix insert to be idempotent
 * [x] Make the DB configurable to use an external SQL db like RDS
 * [ ] Create terraform script for vpc, subnet creation, igw, rds
 * [x] Make the DB configurable to be a mounted volume

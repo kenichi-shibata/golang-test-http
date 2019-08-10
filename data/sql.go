@@ -72,18 +72,31 @@ func SelectDB(user *utils.User) (userCalc utils.User, errSelectDB error) {
 	}
 
 	selectQuery := dbSelectStmt
-	rows := database.QueryRow(selectQuery, user.Username)
-	errQuery := rows.Scan(&id, &name, &birthdate)
-	glog.Info(errQuery)
+	rows, errQuery := database.Query(selectQuery, user.Username)
+	if errQuery != nil {
+		return utils.User{Username: user.Username, Birthdate: user.Birthdate, DaysBeforeBirthday: -365}, errQuery
+	}
+	var errScan error
+	for rows.Next() {
+		errScan = rows.Scan(&id, &name, &birthdate)
+		if errScan != nil {
+			glog.Error(errScan)
+			rows.Close()
+		}
+	}
+	glog.Warning(rows.Err())
 	glog.Info("selectquery: ", selectQuery)
+	if name == "" && birthdate == "" {
+		errScan = sql.ErrNoRows
+	}
 
 	switch {
-	case errQuery == sql.ErrNoRows:
+	case errScan == sql.ErrNoRows:
 		glog.Warning("no user with username: ", user.Username)
 		return utils.User{Username: user.Username, Birthdate: user.Birthdate, DaysBeforeBirthday: -365}, &utils.SQLRecordNotFoundError{Record: user.Username}
-	case errQuery != nil:
+	case errScan != nil:
 		glog.Error("query error: ", errQuery)
-		return utils.User{Username: user.Username, Birthdate: user.Birthdate, DaysBeforeBirthday: -365}, errQuery
+		return utils.User{Username: user.Username, Birthdate: user.Birthdate, DaysBeforeBirthday: -365}, errScan
 	default:
 		glog.Info("username is: ", user.Username)
 		glog.Info("Found in DB: " + strconv.Itoa(id) + ": " + name + " " + birthdate)
