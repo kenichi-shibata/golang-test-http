@@ -3,15 +3,15 @@
  set -o xtrace
 
  curl -X PUT 127.0.0.1:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
- # this should fail you cannot change your birthday
+ # this should pass PUT means updating your birthdate
  curl -X PUT 127.0.0.1:8080/hello/world -d '{"dateOfBirth": "2019-01-03"}'
  # this should pass because of idempotency
  curl -X PUT 127.0.0.1:8080/hello/world -d '{"dateOfBirth": "2019-01-02"}'
- # PUT without user
+ # PUT without user this should  pass with please inpute username
  curl -X PUT 127.0.0.1:8080/hello/
- # PUT without anything
+ # PUT without anything this should fail with need JSON 
  curl -X PUT 127.0.0.1:8080/hello/world66
- # PUT with bad data
+ # PUT with bad data this should fail with please inpute dateOfBirth
  curl -X PUT 127.0.0.1:8080/hello/world -d {}
  # this should pass
  curl -X GET 127.0.0.1:8080/hello/world
