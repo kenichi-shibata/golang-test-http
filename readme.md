@@ -211,6 +211,25 @@ Using two AWS Accounts one used for Stateful Sets and DBs. And Another AWS Accou
 
 ![](./Golang-HTTP-Test.png)
 
+
+Automated deploy scripts (with full infra structure) 
+=================
+Automated deploy scripts are generated already on `example-manifest`
+
+```
+cp -R example-manifest/ manifest/
+# update the secret.yaml and configmap.yaml
+# the rds certificate is already attached to the configmap-rds
+```
+
+```
+kubectl create namespace -n test-namespace
+kubectl apply -f manifests/ -n test-namespace
+```
+
+The Full Instrastructure setup are available in this directory `eks-infra/`
+
+
 TODO
 -----
 * [x] Fix the insert to update instead (currently PUT creates a new record and on GET you only get the first record and ignoring the records created after that)
